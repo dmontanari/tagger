@@ -12,6 +12,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var fullOutput bool
+
 var lastCmd = &cobra.Command{
 
 	Use:   "last [repository path]",
@@ -29,11 +31,16 @@ var lastCmd = &cobra.Command{
 		}
 
 		tag := tags.Newer()
-		fmt.Printf("%s  %s\n", tag.Date.Format("2006-01-02 15:04"), tag.Name)
+		if fullOutput {
+			fmt.Printf("%s  %s\n", tag.Date.Format("2006-01-02 15:04"), tag.Name)
+		} else {
+			fmt.Println(tag.Name)
+		}
 		os.Exit(0)
 	},
 }
 
 func init() {
+	lastCmd.Flags().BoolVarP(&fullOutput, "full", "f", false, "Full output - date and tag")
 	rootCmd.AddCommand(lastCmd)
 }
