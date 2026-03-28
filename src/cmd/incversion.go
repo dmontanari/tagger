@@ -15,11 +15,10 @@ import (
 var incMajor bool
 var incMinor bool
 var incPatch bool
-var push bool
 
 var incCmd = &cobra.Command{
 
-	Use:   "inc [repository path] [flags]",
+	Use:   "inc [repository path] [--dry-run|-d]",
 	Short: "Create new tag incrementing version number.",
 	Long: `inc [repository path] [flats] Create new tag incrementing version number. 
 	Tags must follow the pattern vM.m.p.
@@ -41,15 +40,9 @@ var incCmd = &cobra.Command{
 			panic(err)
 		}
 
-		if incMajor {
-			fmt.Println(tags.IncrementMajor())
-		} else if incMinor {
-			fmt.Println(tags.IncrementMinor())
-		} else if incPatch {
-			fmt.Println(tags.IncrementPatch())
-		}
+		IncVersion(tags)
 
-		if push {
+		if !dryRun {
 			fmt.Println("Pushing to remote not implemented yet. WIP")
 		}
 
@@ -57,12 +50,27 @@ var incCmd = &cobra.Command{
 	},
 }
 
+func IncVersion(tags gitutil.GitTags) {
+
+	if verbose {
+		fmt.Printf("%s -> ", tags.Newer().Name)
+	}
+
+	if incMajor {
+		fmt.Println(tags.IncrementMajor())
+	} else if incMinor {
+		fmt.Println(tags.IncrementMinor())
+	} else if incPatch {
+		fmt.Println(tags.IncrementPatch())
+	}
+
+}
+
 func init() {
 
 	incCmd.Flags().BoolVarP(&incMajor, "major", "M", false, "Increment major version")
 	incCmd.Flags().BoolVarP(&incMinor, "minor", "m", false, "Increment minor version")
 	incCmd.Flags().BoolVarP(&incPatch, "patch", "p", false, "Increment patch version")
-	incCmd.Flags().BoolVarP(&push, "push", "P", false, "Push to remote")
 
 	rootCmd.AddCommand(incCmd)
 }

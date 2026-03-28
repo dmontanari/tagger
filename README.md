@@ -29,17 +29,64 @@ tagger is built on the premise that Git is the single source of truth. Tags are 
 
 ### Usage
 
-Increment Version (Major, Minor, or Patch)
+#### Help
+
+```bash
+$ tagger help
+
+	. : Git tag Swiss Army Knife : .
+
+Usage:
+  tagger [command]
+
+Available Commands:
+  completion  Generate the autocompletion script for the specified shell
+  help        Help about any command
+  inc         Create new tag incrementing version number.
+  last        Return last tag in repository path.
+  list        List all tags in repository path.
+  version     Show version.
+
+Flags:
+  -h, --help      help for tagger
+
+Use "tagger [command] --help" for more information about a command.
+```
+
+#### List all tags
+
+```bash
+$ tagger list -h
+list [repository path] List all tags in repository path.
+
+Usage:
+  tagger list [repository path] [flags]
+
+Flags:
+  -h, --help  help for list
+
+$ tagger list /path/to/repo
+Tags:
+2026-03-28 12:26  v0.0.1
+```
+
+#### Increment Version (Major, Minor, or Patch)
 
 tagger identifies the latest version, applies the logical increment, and optionally pushes to remote.
 
+Note: Incrementing a higher version level resets lower ones (e.g., a Major bump on v2.1.35 results in v3.0.0).
+
 ```bash
-tagger inc [path] --patch  # v1.0.0 -> v1.0.1
-tagger inc [path] --minor  # v1.0.1 -> v1.1.0
-tagger inc [path] --major  # v1.1.0 -> v2.0.0
+$ tagger inc -M . --dry-run --verbose
+v0.0.1 -> v1.0.0
+$ tagger inc -m . --dry-run --verbose
+v0.0.1 -> v0.1.0
+$ tagger inc -p . --dry-run --verbose
+v0.0.1 -> v0.0.2
+$ tagger inc -p . --dry-run
+v0.0.2
 ```
 
-Note: Incrementing a higher version level resets lower ones (e.g., a Major bump on v2.1.35 results in v3.0.0).
 
 ## Building from sources
 
