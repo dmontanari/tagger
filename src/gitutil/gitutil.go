@@ -124,7 +124,12 @@ func (g GitTags) Dump() {
 
 	t := g.Tags
 
-	fmt.Println("Tags ordenadas:")
+	if len(t) == 0 {
+		fmt.Println("Repository without tags.")
+		return
+	}
+
+	fmt.Println("Tags:")
 	for _, tag := range t {
 		fmt.Printf("%s  %s\n", tag.Date.Format("2006-01-02 15:04"), tag.Name)
 	}

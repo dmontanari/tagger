@@ -21,8 +21,11 @@ var incCmd = &cobra.Command{
 
 	Use:   "inc [repository path] [flags]",
 	Short: "Create new tag incrementing version number.",
-	Long:  "inc [repository path] [flats] Create new tag incrementing version number. Tags must follow the pattern vM.m.p.",
-	Args:  cobra.ExactArgs(1),
+	Long: `inc [repository path] [flats] Create new tag incrementing version number. 
+	Tags must follow the pattern vM.m.p.
+	Incrementing a higher version level resets lower ones (e.g., a Major bump on v2.1.35 results in v3.0.0).
+	`,
+	Args: cobra.ExactArgs(1),
 
 	Run: func(cmd *cobra.Command, args []string) {
 
