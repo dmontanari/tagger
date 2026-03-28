@@ -25,7 +25,9 @@ func Execute() {
 }
 
 var verbose bool
+var dryRun bool
 
 func init() {
-	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "V", false, "Modo verboso")
+	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "V", false, "Verbose mode")
+	rootCmd.PersistentFlags().BoolVarP(&dryRun, "dry-run", "d", false, "Dry run")
 }
