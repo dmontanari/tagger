@@ -40,29 +40,53 @@ var incCmd = &cobra.Command{
 			panic(err)
 		}
 
-		IncVersion(tags)
+		newTag := IncVersion(tags)
 
 		if !dryRun {
-			fmt.Println("Pushing to remote not implemented yet. WIP")
+			CreateTag(tags, newTag)
 		}
 
 		os.Exit(0)
 	},
 }
 
-func IncVersion(tags gitutil.GitTags) {
+func IncVersion(tags gitutil.GitTags) string {
 
 	if verbose {
 		fmt.Printf("%s -> ", tags.Newer().Name)
 	}
 
+	var newTag string
+
 	if incMajor {
-		fmt.Println(tags.IncrementMajor())
+		newTag = tags.IncrementMajor()
 	} else if incMinor {
-		fmt.Println(tags.IncrementMinor())
+		newTag = tags.IncrementMinor()
 	} else if incPatch {
-		fmt.Println(tags.IncrementPatch())
+		newTag = tags.IncrementPatch()
 	}
+
+	fmt.Println(newTag)
+
+	return newTag
+	// if incMajor {
+	// 	fmt.Println(tags.IncrementMajor())
+	// } else if incMinor {
+	// 	fmt.Println(tags.IncrementMinor())
+	// } else if incPatch {
+	// 	fmt.Println(tags.IncrementPatch())
+	// }
+
+}
+
+func CreateTag(tags gitutil.GitTags, newTag string) {
+
+	if verbose {
+		fmt.Printf("%s -> ", tags.Newer().Name)
+	}
+
+	fmt.Println(newTag)
+	tags.CreateTag(newTag)
 
 }
 
