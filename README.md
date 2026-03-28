@@ -47,9 +47,9 @@ Building from source
 
 1. Clone this repository: git clone https://github.com/dmontanari/tagger.git
 
-2. Download dependencies: go mod download
+2. Build the binary: make build
 
-3. Build the binary: go build -o tagger
+The binary will be in the src/tagger directory.
 
 
 ## Installation
@@ -65,3 +65,16 @@ Distributed under MIT license. See LICENSE for more information.
 
 
 ---------
+
+## Extras
+
+```bash
+git tag --sort=-v:refname | head -n 1
+
+go build -ldflags "-X main.AppVersion=$(tagger last .)" -o tagger
+
+go build -ldflags "-X tagger.cmd.versionCode=$(git tag --sort=-v:refname | head -n 1)"
+
+
+```
+

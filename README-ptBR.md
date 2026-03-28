@@ -46,6 +46,16 @@ tagger inc [repository_path] --major  # Incrementa v1.1.0 para v2.0.0
 
 Nota: Incrementar um nível de versão zera os demais. Por exemplo, incrementar o major da versão v2.1.35 vai gerar a tag da versão v3.0.0.
 
+## Compilação
+
+Building from source
+
+1. Clone o repositório: git clone https://github.com/dmontanari/tagger.git
+
+2. Compile: make build
+
+O binário estará no diretório src/tagger.
+
 
 ## Instalação
 
