@@ -1,7 +1,7 @@
 # Tagger: The Git Tag Swiss Army Knife
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Go Report Card](https://goreportcard.com/badge/github.com/dmontanari/tagger)](https://goreportcard.com/report/github.com/dmontanari/tagger)
+
 
 . : Pragmatic Semantic Versioning for Git-based CI/CD : .
 
