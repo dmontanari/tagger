@@ -13,6 +13,8 @@ import (
 )
 
 var gitTags gitutil.GitTags
+var verbose bool
+var dryRun bool
 
 var rootCmd = &cobra.Command{
 	Use:   "tagger",
@@ -20,34 +22,44 @@ var rootCmd = &cobra.Command{
 	Long:  "\n\t. : Git tag Swiss Army Knife : .",
 }
 
+// Execute adds all child commands to the root command and sets flags appropriately.
+// This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
-
-	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
-		var err error
-
-		from := args[0]
-		gitTags, err = gitutil.NewGitTags(from)
-
-		if err != nil {
-			return err
-		}
-		if !gitTags.HaveRemote() {
-			return fmt.Errorf("impossível fazer push: repositório sem remote definido")
-		}
-
-		return nil
-	}
-
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println("Oops... " + err.Error())
 		os.Exit(1)
 	}
 }
 
-var verbose bool
-var dryRun bool
-
 func init() {
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "V", false, "Verbose mode")
 	rootCmd.PersistentFlags().BoolVarP(&dryRun, "dry-run", "d", false, "Dry run")
+
+	// This PersistentPreRunE will run before any sub-command, ensuring gitTags is populated.
+	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
+		// Commands that do not need a repository path arg
+		noPathCmds := map[string]bool{
+			"tagger":     true,
+			"help":       true,
+			"version":    true,
+			"completion": true,
+		}
+		if noPathCmds[cmd.Name()] {
+			return nil
+		}
+
+		if len(args) < 1 {
+			return fmt.Errorf("repository path argument is required for this command")
+		}
+
+		var err error
+		from := args[0]
+		gitTags, err = gitutil.NewGitTags(from)
+		if err != nil {
+			// If there are no tags, that's not a fatal error for all commands (e.g. inc can start from 0)
+			// but NewGitTags handles this gracefully. We'll let the specific commands decide.
+			return err
+		}
+		return nil
+	}
 }

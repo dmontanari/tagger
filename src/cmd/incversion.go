@@ -6,6 +6,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 	"tagger/gitutil"
 
 	"github.com/spf13/cobra"
@@ -26,9 +27,22 @@ var incCmd = &cobra.Command{
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 
+		if len(gitTags.Tags) == 0 {
+			// If there are no tags, we can't increment.
+			// We could default to v0.1.0 or v0.0.1, but for now, we'll error.
+			fmt.Println("No existing tags found to increment from.")
+			os.Exit(1)
+		}
+
 		newTag := IncVersion(gitTags)
 
 		if !dryRun {
+			// Check for remote only when we are about to create and push a tag.
+			if !gitTags.HaveRemote() {
+				fmt.Println("Error: cannot push tag, no remote is configured for this repository.")
+				os.Exit(1)
+			}
+
 			CreateTag(gitTags, newTag)
 			err := gitTags.Push(newTag)
 			if err != nil {
@@ -68,8 +82,11 @@ func CreateTag(tags gitutil.GitTags, newTag string) {
 	}
 
 	fmt.Println(newTag)
-	tags.CreateTag(newTag)
-
+	err := tags.CreateTag(newTag)
+	if err != nil {
+		fmt.Printf("Error creating tag: %v\n", err)
+		os.Exit(1)
+	}
 }
 
 func init() {
