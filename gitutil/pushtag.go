@@ -22,7 +22,7 @@ func createAuthMethod(endpoint transport.Endpoint) (transport.AuthMethod, error)
 	// Expand "~" to full path
 	keyPath := ssh_config.Get(host, "IdentityFile")
 	if keyPath == "" {
-		return nil, fmt.Errorf("Publik key not set")
+		return nil, fmt.Errorf("publik key not set")
 	}
 	if strings.HasPrefix(keyPath, "~/") {
 		home, _ := os.UserHomeDir()
@@ -52,7 +52,7 @@ func createAuthMethod(endpoint transport.Endpoint) (transport.AuthMethod, error)
 		return auth, nil
 	}
 
-	return nil, fmt.Errorf("Error creating auth method")
+	return nil, fmt.Errorf("error creating auth method")
 
 }
 
@@ -74,6 +74,10 @@ func (g GitTags) Push(tagName string) error {
 			config.RefSpec(fmt.Sprintf("refs/tags/%s:refs/tags/%s", tagName, tagName)),
 		},
 	})
+
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

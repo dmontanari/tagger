@@ -72,7 +72,10 @@ func setupTestRepo(t *testing.T) (string, func()) {
 	}
 
 	cleanup := func() {
-		os.RemoveAll(repoPath)
+		err := os.RemoveAll(repoPath)
+		if err != nil {
+			t.Fatalf("Failed to remove temp dir: %v", err)
+		}
 	}
 
 	return repoPath, cleanup
@@ -94,12 +97,18 @@ func executeCommand(args ...string) (string, error) {
 	cmdErr := rootCmd.Execute()
 
 	// Close the writer and restore stdout
-	w.Close()
+	err := w.Close()
+	if err != nil {
+		return "", err
+	}
 	os.Stdout = oldStdout
 
 	// Read the output from the pipe
 	var out bytes.Buffer
-	io.Copy(&out, r)
+	_, err = io.Copy(&out, r)
+	if err != nil {
+		return "", err
+	}
 
 	return out.String(), cmdErr
 }
