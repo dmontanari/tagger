@@ -6,8 +6,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
-	"tagger/gitutil"
 
 	"github.com/spf13/cobra"
 )
@@ -23,20 +21,12 @@ var lastCmd = &cobra.Command{
 
 	Run: func(cmd *cobra.Command, args []string) {
 
-		from := args[0]
-		tags, err := gitutil.NewGitTags(from)
-
-		if err != nil {
-			panic(err)
-		}
-
-		tag := tags.Newer()
+		tag := gitTags.Newer()
 		if fullOutput {
 			fmt.Printf("%s  %s\n", tag.Date.Format("2006-01-02 15:04"), tag.Name)
 		} else {
 			fmt.Println(tag.Name)
 		}
-		os.Exit(0)
 	},
 }
 

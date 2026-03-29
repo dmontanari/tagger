@@ -5,9 +5,6 @@
 package cmd
 
 import (
-	"os"
-	"tagger/gitutil"
-
 	"github.com/spf13/cobra"
 )
 
@@ -19,17 +16,7 @@ var listCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 
 	Run: func(cmd *cobra.Command, args []string) {
-
-		from := args[0]
-		tags, err := gitutil.NewGitTags(from)
-
-		if err != nil {
-			panic(err)
-		}
-
-		tags.Dump()
-
-		os.Exit(0)
+		gitTags.Dump()
 	},
 }
 

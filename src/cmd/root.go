@@ -7,9 +7,12 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"tagger/gitutil"
 
 	"github.com/spf13/cobra"
 )
+
+var gitTags gitutil.GitTags
 
 var rootCmd = &cobra.Command{
 	Use:   "tagger",
@@ -18,6 +21,23 @@ var rootCmd = &cobra.Command{
 }
 
 func Execute() {
+
+	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
+		var err error
+
+		from := args[0]
+		gitTags, err = gitutil.NewGitTags(from)
+
+		if err != nil {
+			return err
+		}
+		if !gitTags.HaveRemote() {
+			return fmt.Errorf("impossível fazer push: repositório sem remote definido")
+		}
+
+		return nil
+	}
+
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println("Oops... " + err.Error())
 		os.Exit(1)
