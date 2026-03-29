@@ -1,5 +1,9 @@
 # Tagger: The Git Tag Swiss Army Knife
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Go Report Card](https://goreportcard.com/badge/github.com/dmontanari/tagger)](https://goreportcard.com/report/github.com/SEU_USUARIO/tagger)
+
+
 . : Pragmatic Semantic Versioning for Git-based CI/CD : .
 
 tagger is a CLI tool written in Go designed to automate Semantic Versioning (SemVer) based purely on Git Tags.
@@ -98,6 +102,14 @@ Building from source
 
 The binary will be in the src/tagger directory.
 
+## TODO
+
+[ ] Use env vars to allow use the tool in pipelines:
+- ssh key and username
+- remote name (origin, upstream, etc.)
+- annotation text
+- 
+[ ] 
 
 ## Installation
 

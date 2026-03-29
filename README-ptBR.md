@@ -1,5 +1,8 @@
 # Tagger: The Git Tag Swiss Army Knife
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Go Report Card](https://goreportcard.com/badge/github.com/dmontanari/tagger)](https://goreportcard.com/report/github.com/SEU_USUARIO/tagger)
+
 . : Pragmatic Semantic Versioning for Git-based CI/CD : .
 
 tagger é uma ferramenta de linha de comando escrita em Go para automação de versionamento semântico (SemVer) baseada puramente em Git Tags.
