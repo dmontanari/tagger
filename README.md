@@ -6,6 +6,8 @@
 
 . : Pragmatic Semantic Versioning for Git-based CI/CD : .
 
+![tagger](images/tagger.png)
+
 tagger is a CLI tool written in Go designed to automate Semantic Versioning (SemVer) based purely on Git Tags.
 Motivation
 
@@ -15,21 +17,21 @@ tagger is built on the premise that Git is the single source of truth. Tags are 
 
 ### What Tagger Solves
 
-    Zero External Dependencies: No need for external databases or .version files that trigger circular commits in your pipeline.
+- Zero External Dependencies: No need for external databases or .version files that trigger circular commits in your pipeline.
 
-    Pragmatic Logs: Frees your commit history for its original purpose: documenting technical intent and solutions, not carrying infrastructure flags.
+- Pragmatic Logs: Frees your commit history for its original purpose: documenting technical intent and solutions, not carrying infrastructure flags.
 
-    SemVer Consistency: Ensures that version increments (Major, Minor, Patch) strictly follow the SemVer 2.0.0 specification.
+- SemVer Consistency: Ensures that version increments (Major, Minor, Patch) strictly follow the SemVer 2.0.0 specification.
 
-    CI/CD Performance: As a static Go binary, tagger is ideal for lightweight runners, requiring no heavy runtimes (Python, Node, PHP).
+- CI/CD Performance: As a static Go binary, tagger is ideal for lightweight runners, requiring no heavy runtimes (Python, Node, PHP).
 
 ### Engineering Principles
 
-    Single Source of Truth: The current version is always the highest SemVer tag found in the Git history.
+- Single Source of Truth: The current version is always the highest SemVer tag found in the Git history.
 
-    Immutability: Once pushed to remote, a tag is the ultimate release authority.
+- Immutability: Once pushed to remote, a tag is the ultimate release authority.
 
-    Zero Bloat: Focused on doing one thing—managing tags—with maximum efficiency.
+- Zero Bloat: Focused on doing one thing—managing tags—with maximum efficiency.
 
 ### Usage
 
@@ -100,16 +102,8 @@ Building from source
 
 2. Build the binary: make build
 
-The binary will be in the src/tagger directory.
+The binary will be in the root directory.
 
-## TODO
-
-[ ] Use env vars to allow use the tool in pipelines:
-- ssh key and username
-- remote name (origin, upstream, etc.)
-- annotation text
-- 
-[ ] 
 
 ## Installation
 
@@ -122,18 +116,4 @@ Distributed under MIT license. See LICENSE for more information.
 
 © 2026 Daniel Montanari. All rights reserved.
 
-
----------
-
-## Extras
-
-```bash
-git tag --sort=-v:refname | head -n 1
-
-go build -ldflags "-X main.AppVersion=$(tagger last .)" -o tagger
-
-go build -ldflags "-X tagger.cmd.versionCode=$(git tag --sort=-v:refname | head -n 1)"
-
-
-```
 
