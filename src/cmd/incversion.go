@@ -30,6 +30,10 @@ var incCmd = &cobra.Command{
 
 		if !dryRun {
 			CreateTag(gitTags, newTag)
+			err := gitTags.Push(newTag)
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
 
 	},

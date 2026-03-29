@@ -20,3 +20,30 @@ func (g GitTags) HaveRemote() bool {
 
 	return true
 }
+
+func (g GitTags) GetRemote() string {
+
+	cfg, _ := g.repository.Config()
+
+	rawRemote := cfg.Raw.Section("remote").Subsection("origin")
+
+	// Note
+	//
+	// .git/config options for remote
+	// [remote "origin"]
+	// url = git@github.com:usuario/projeto.git
+	// fetch = +refs/heads/*:refs/remotes/origin/*
+	// pushurl = git@github.com:usuario/projeto-push.git
+	// push = refs/heads/main:refs/heads/main
+	// tagOpt = --tags
+
+	pushUrl := rawRemote.Option("pushurl")
+	if pushUrl != "" {
+		return pushUrl
+	}
+
+	pushURL := rawRemote.Option("url")
+
+	return pushURL
+
+}
