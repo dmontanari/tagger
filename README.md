@@ -6,8 +6,14 @@
 
 ![tagger](images/tagger.png)
 
+
+
 tagger is a CLI tool written in Go designed to automate Semantic Versioning (SemVer) based purely on Git Tags.
-Motivation
+
+This project is in WIP state. Not ready for production yet.
+
+
+### Motivation
 
 In modern CI/CD ecosystems, managing artifact versions (Docker images, Binaries, Releases) has become unnecessarily bloated. Current solutions often rely on external states (Redis, databases), duplicated version files within the repo, or—worse—extracting metadata from commit messages cluttered with emojis and redundant prefixes.
 
