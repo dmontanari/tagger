@@ -15,7 +15,7 @@ func (g GitTags) Push(tagName string) error {
 	}
 
 	err = g.repository.Push(&git.PushOptions{
-		RemoteName: "origin",
+		RemoteName: g.remoteName, 
 		Auth:       authMethod,
 		RefSpecs: []config.RefSpec{
 			config.RefSpec(fmt.Sprintf("refs/tags/%s:refs/tags/%s", tagName, tagName)),
