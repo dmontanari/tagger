@@ -18,6 +18,7 @@ type GitTags struct {
 	Tags       []TagInfo
 	Repo       string
 	repository *git.Repository
+	remoteName string
 }
 
 type TagInfo struct {
@@ -29,47 +30,57 @@ type TagInfo struct {
 	PatchVersion int
 }
 
-func NewGitTags(gitpath string) (GitTags, error) {
+func NewGitTags(gitpath string, remoteName string) (GitTags, error) {
 
 	// We instantiate a new repository targeting the given path (the .git folder)
 	var err error
 
 	tagInfo := []TagInfo{}
-	gitTags := GitTags{Repo: gitpath}
+	gitTags := GitTags{Repo: gitpath, remoteName: remoteName}
 
 	gitTags.repository, err = git.PlainOpen(gitpath)
 	if err != nil {
 		return gitTags, err
 	}
 
-	// List all tag references, both lightweight tags and annotated tags
-	tagrefs, err := gitTags.repository.Tags()
+	// Go to remote
+	remote, err := gitTags.repository.Remote(gitTags.remoteName)
+	if err != nil {
+		return gitTags, err
+	}
+	auth, err := gitTags.createAuthMethod()
 	if err != nil {
 		return gitTags, err
 	}
 
-	err = tagrefs.ForEach(func(t *plumbing.Reference) error {
+	// List all tag references, both lightweight tags and annotated tags
+	// tagrefs, err := gitTags.repository.Tags()
+	tagrefs, err := remote.List(&git.ListOptions{Auth: auth})
+	if err != nil {
+		return gitTags, err
+	}
+
+	for _, t := range tagrefs {
 		var tagDate time.Time
 
-		// Tenta obter o objeto Tag (caso seja uma annotated tag)
+		// Get tag object
 		if tagObj, err := gitTags.repository.TagObject(t.Hash()); err == nil {
 			tagDate = tagObj.Tagger.When
 		} else if commitObj, err := gitTags.repository.CommitObject(t.Hash()); err == nil {
-			// Se for uma lightweight tag, pega a data do commit referenciado
 			tagDate = commitObj.Committer.When
 		}
 
 		name := t.Name().Short()
 
-		// Ignora tags que não começam com "v"
+		// Search for tags with "v" pattern (vM.m.p)
 		if !strings.HasPrefix(name, "v") {
-			return nil
+			continue
 		}
 
 		var major, minor, patch int
-		parts := strings.Split(name[1:], ".") // name[1:] remove o 'v' inicial
+		parts := strings.Split(name[1:], ".") // name[1:] remove 'v'
 		if len(parts) < 3 {
-			return nil
+			continue
 		}
 
 		major, _ = strconv.Atoi(parts[0])
@@ -84,14 +95,13 @@ func NewGitTags(gitpath string) (GitTags, error) {
 			MinorVersion: minor,
 			PatchVersion: patch,
 		})
-		return nil
-	})
+	}
+
 	if err != nil {
 		return gitTags, err
 	}
 
-	// Ordena a fatia (slice) usando a data. O ".After" garante ordem decrescente (mais recente primeiro).
-	// Para ordem crescente (mais antiga primeiro), troque ".After" por ".Before".
+	// Order by date
 	sort.Slice(tagInfo, func(i, j int) bool {
 		return tagInfo[i].Date.After(tagInfo[j].Date)
 	})
