@@ -5,6 +5,7 @@
 package gitutil
 
 import (
+	"fmt"
 	"sort"
 	"strconv"
 	"strings"
@@ -12,6 +13,7 @@ import (
 
 	"github.com/go-git/go-git/v6"
 	"github.com/go-git/go-git/v6/plumbing"
+	"github.com/go-git/go-git/v6/plumbing/object"
 )
 
 type GitTags struct {
@@ -38,49 +40,69 @@ func NewGitTags(gitpath string, remoteName string) (GitTags, error) {
 	tagInfo := []TagInfo{}
 	gitTags := GitTags{Repo: gitpath, remoteName: remoteName}
 
-	gitTags.repository, err = git.PlainOpen(gitpath)
+	r, err := git.PlainOpen(gitpath)
 	if err != nil {
 		return gitTags, err
 	}
+	gitTags.repository = r
 
-	// Go to remote
-	remote, err := gitTags.repository.Remote(gitTags.remoteName)
-	if err != nil {
-		return gitTags, err
-	}
+	// Create auth method for remote operations
 	auth, err := gitTags.createAuthMethod()
 	if err != nil {
-		return gitTags, err
+		return gitTags, fmt.Errorf("failed to create auth method: %w", err)
 	}
 
-	// List all tag references, both lightweight tags and annotated tags
-	// tagrefs, err := gitTags.repository.Tags()
-	tagrefs, err := remote.List(&git.ListOptions{Auth: auth})
+	// Fetch all tags from the remote to ensure our local repo is up-to-date
+	err = r.Fetch(&git.FetchOptions{
+		RemoteName: remoteName,
+		Auth:       auth,
+		Tags:       plumbing.AllTags,
+		Prune:      true,
+	})
+	if err != nil && err.Error() != "already up-to-date" {
+		return gitTags, fmt.Errorf("failed to fetch tags from remote: %w", err)
+	}
+
+	// Now that we have fetched, we can iterate over local tags, which are now in sync with the remote
+	tagrefs, err := r.Tags()
 	if err != nil {
 		return gitTags, err
 	}
 
-	for _, t := range tagrefs {
+	err = tagrefs.ForEach(func(t *plumbing.Reference) error {
 		var tagDate time.Time
 
-		// Get tag object
-		if tagObj, err := gitTags.repository.TagObject(t.Hash()); err == nil {
-			tagDate = tagObj.Tagger.When
-		} else if commitObj, err := gitTags.repository.CommitObject(t.Hash()); err == nil {
-			tagDate = commitObj.Committer.When
+		// Get tag object. For annotated tags, this hash points to a tag object.
+		// For lightweight tags, it points to a commit object.
+		obj, err := r.Object(plumbing.AnyObject, t.Hash())
+		if err != nil {
+			return nil // Should not happen, but let's be safe
+		}
+
+		switch o := obj.(type) {
+		case *object.Tag:
+			// It's an annotated tag
+			tagDate = o.Tagger.When
+		case *object.Commit:
+			// It's a lightweight tag
+			tagDate = o.Committer.When
+		default:
+			// Not a tag or commit, maybe a tree or blob? Skip.
+			return nil
 		}
 
 		name := t.Name().Short()
 
 		// Search for tags with "v" pattern (vM.m.p)
 		if !strings.HasPrefix(name, "v") {
-			continue
+			return nil // continue
 		}
 
 		var major, minor, patch int
 		parts := strings.Split(name[1:], ".") // name[1:] remove 'v'
 		if len(parts) < 3 {
-			continue
+			// Using return nil to continue ForEach loop
+			return nil
 		}
 
 		major, _ = strconv.Atoi(parts[0])
@@ -95,7 +117,8 @@ func NewGitTags(gitpath string, remoteName string) (GitTags, error) {
 			MinorVersion: minor,
 			PatchVersion: patch,
 		})
-	}
+		return nil
+	})
 
 	if err != nil {
 		return gitTags, err
