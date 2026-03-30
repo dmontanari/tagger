@@ -13,6 +13,7 @@ import (
 )
 
 var gitTags gitutil.GitTags
+var remoteName string
 var verbose bool
 var dryRun bool
 
@@ -34,6 +35,7 @@ func Execute() {
 func init() {
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "V", false, "Verbose mode")
 	rootCmd.PersistentFlags().BoolVarP(&dryRun, "dry-run", "d", false, "Dry run")
+	rootCmd.PersistentFlags().StringVarP(&remoteName, "remote", "r", "origin", "Remote name to use")
 
 	// This PersistentPreRunE will run before any sub-command, ensuring gitTags is populated.
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
@@ -54,7 +56,7 @@ func init() {
 
 		var err error
 		from := args[0]
-		gitTags, err = gitutil.NewGitTags(from)
+		gitTags, err = gitutil.NewGitTags(from, remoteName)
 		if err != nil {
 			// If there are no tags, that's not a fatal error for all commands (e.g. inc can start from 0)
 			// but NewGitTags handles this gracefully. We'll let the specific commands decide.
