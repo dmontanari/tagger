@@ -1,11 +1,8 @@
 
-VERSION=$(shell git tag --sort=-v:refname | head -n 1)
-
 build:
-	go mod download
-	go build -ldflags "-X tagger/cmd.versionCode=$(VERSION)"
+	go mod tidy
+	go build
 
 clean:
-	rm -fv src/tagger
-
+	rm -fv tagger
 
