@@ -1,3 +1,4 @@
 tagger
 .DS_Store
 launch.json
+.env
