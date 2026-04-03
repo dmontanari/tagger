@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/go-git/go-git/v6/plumbing/transport"
+	"github.com/go-git/go-git/v6/plumbing/transport/http"
 	"github.com/go-git/go-git/v6/plumbing/transport/ssh"
 	"github.com/kevinburke/ssh_config"
 	cryptossh "golang.org/x/crypto/ssh"
@@ -54,14 +55,7 @@ func (g GitTags) GetRemote() string {
 
 }
 
-// Create AuthMethod to connect to remote
-func (g GitTags) createAuthMethod() (transport.AuthMethod, error) {
-
-	url := g.GetRemote()
-
-	endpoint, _ := transport.NewEndpoint(url)
-
-	host := endpoint.Host
+func (g GitTags) createSSHAuthMethod(host string) (transport.AuthMethod, error) {
 
 	// Get IdentityFile from .ssh/config
 	// Expand "~" to full path
@@ -97,6 +91,39 @@ func (g GitTags) createAuthMethod() (transport.AuthMethod, error) {
 		return auth, nil
 	}
 
-	return nil, fmt.Errorf("error creating auth method")
+	return nil, fmt.Errorf("error creating SSH auth method")
+
+}
+
+func (g GitTags) createPATAuthMethod() (transport.AuthMethod, error) {
+
+	e := NewEnv()
+
+	if e.PAT == "" {
+		return nil, fmt.Errorf("PAT not set. Please set HTTP_PAT environment variable and try again.")
+	}
+
+	auth := &http.BasicAuth{
+		Username: e.Username,
+		Password: e.PAT,
+	}
+
+	return auth, nil
+
+}
+
+// Create AuthMethod to connect to remote
+func (g GitTags) createAuthMethod() (transport.AuthMethod, error) {
+
+	url := g.GetRemote()
+
+	endpoint, _ := transport.NewEndpoint(url)
+	host := endpoint.Host
+
+	if strings.HasPrefix(url, "https") {
+		return g.createPATAuthMethod()
+	}
+
+	return g.createSSHAuthMethod(host)
 
 }
