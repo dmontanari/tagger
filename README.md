@@ -61,6 +61,38 @@ Below is a suggested architecture dividing the lifecycle into three logical phas
 3. The pipeline commits and pushes this change back to the infrastructure repository.
 4. The Continuous Delivery engine monitoring this repository (ArgoCD, Flux) detects the state change and applies the new version to the target environment.
 
+### Environment
+
+It is possible to use tagger with SSH or HTTPS. 
+
+#### SSH Usage
+
+For SSH, the application will look for the PKI in your .ssh directory.
+
+
+#### HTTPS Usage
+
+For HTTPS remotes (like Azure DevOps, GitHub, or GitLab), tagger requires a Personal Access Token (PAT) injected via environment variables. Use this feature in your pipelines.
+
+You must set the following variables before running the tool:
+- `HTTP_USERNAME`: Your Git provider username.
+- `HTTP_PAT`: Your Personal Access Token.
+
+**Security & Scopes:** The provided PAT must have at least **Code (Read & Write)** permissions to successfully fetch existing tags and push new ones.
+
+
+**Example:**
+
+```bash
+export HTTP_USERNAME="your-username-here"
+export HTTP_PAT="your-token-here"
+
+tagger list . --remote origin
+Tags:
+2026-03-30 20:03  v0.0.3
+2026-03-29 00:50  v0.0.2
+2026-03-28 12:26  v0.0.1
+```
 
 ### Commands
 

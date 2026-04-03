@@ -27,7 +27,6 @@ var rootCmd = &cobra.Command{
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println("Oops... " + err.Error())
 		os.Exit(1)
 	}
 }
@@ -37,6 +36,7 @@ func init() {
 	rootCmd.PersistentFlags().BoolVarP(&dryRun, "dry-run", "d", false, "Dry run")
 	rootCmd.PersistentFlags().StringVarP(&remoteName, "remote", "r", "origin", "Remote name to use")
 
+	rootCmd.SilenceUsage = true
 	// This PersistentPreRunE will run before any sub-command, ensuring gitTags is populated.
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
 		// Commands that do not need a repository path arg

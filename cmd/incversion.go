@@ -26,15 +26,15 @@ var incCmd = &cobra.Command{
 	Long: `inc [repository path] [flags] Create new tag incrementing version number. 
 	Tags must follow the pattern vM.m.p.
 	Incrementing a higher version level resets lower ones (e.g., a Major bump on v2.1.35 results in v3.0.0).
+	HTTS PAT must be defined in HTTP_PAT and HTTP_USERNAME environment variables.
 	`,
 	Args: cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 
 		if len(gitTags.Tags) == 0 {
 			// If there are no tags, we can't increment.
 			// We could default to v0.1.0 or v0.0.1, but for now, we'll error.
-			fmt.Println("No existing tags found to increment from.")
-			os.Exit(1)
+			return fmt.Errorf("No existing tags found to increment from.")
 		}
 
 		newTag := IncVersion(gitTags)
@@ -42,17 +42,16 @@ var incCmd = &cobra.Command{
 		if !dryRun {
 			// Check for remote only when we are about to create and push a tag.
 			if !gitTags.HaveRemote() {
-				fmt.Println("Error: cannot push tag, no remote is configured for this repository.")
-				os.Exit(1)
+				return fmt.Errorf("Error: cannot push tag, no remote is configured for this repository.")
 			}
 
 			CreateTag(gitTags, newTag)
 			err := gitTags.Push(newTag)
 			if err != nil {
-				fmt.Println(err)
+				return (err)
 			}
 		}
-
+		return nil
 	},
 }
 
