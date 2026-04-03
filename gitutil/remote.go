@@ -24,12 +24,6 @@ func (g GitTags) HaveRemote() bool {
 		return false
 	}
 
-	for _, remote := range r {
-		if remote.Config().Name == "origin" {
-			return true
-		}
-	}
-
 	return true
 }
 
